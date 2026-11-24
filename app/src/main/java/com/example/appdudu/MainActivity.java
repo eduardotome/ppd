@@ -1,7 +1,6 @@
 package com.example.appdudu;
 
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -16,36 +15,75 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    //lista que comeca vazia
-    ArrayList<String> nomes = new ArrayList<>();
+
+    EditText edTitulo, edTexto;
+    Button btnSalvar;
+    ListView lista;
+
+    BancoHelper banco;
+    NotaAdapter adapter;
+    ArrayList<Nota> notas = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        Button btnAdd = findViewById(R.id.btnAdd);
-        EditText edNome = findViewById(R.id.edNome);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        ListView lista = findViewById(R.id.listView);
 
-        ArrayAdapter <String> adapter = new ArrayAdapter<>(getApplicationContext(),R.layout.item_lista,R.id.textView,nomes);
+        edTitulo = findViewById(R.id.edTitulo);
+        edTexto = findViewById(R.id.edTexto);
+        btnSalvar = findViewById(R.id.btnSalvar);
+        lista = findViewById(R.id.listView);
+
+        banco = new BancoHelper(this);
+
+        adapter = new NotaAdapter(this, notas);
         lista.setAdapter(adapter);
 
-        //quando clicar no nome mostra ele embaixo
-        lista.setOnItemClickListener((parent, view, position, id) -> {
-            Toast.makeText(getApplicationContext(),nomes.get(position),Toast.LENGTH_LONG).show();
+        carregar();
+
+        btnSalvar.setOnClickListener(v -> {
+            String titulo = edTitulo.getText().toString();
+            String texto = edTexto.getText().toString();
+
+            if (titulo.equals("") && texto.equals("")) {
+                Toast.makeText(MainActivity.this, "Preencha os campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (titulo.equals("")) {
+                titulo = "Sem titulo";
+            }
+
+            long id = banco.inserir(new Nota(titulo, texto));
+
+            if (id != -1) {
+                Toast.makeText(MainActivity.this, "Nota salva!", Toast.LENGTH_SHORT).show();
+                edTitulo.setText("");
+                edTexto.setText("");
+                carregar();
+            } else {
+                Toast.makeText(MainActivity.this, "Erro ao salvar", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        //adicionar o nome digitado na lista
-        btnAdd.setOnClickListener(v -> {
-            nomes.add(edNome.getText().toString());
-            edNome.setText("");
-            adapter.notifyDataSetChanged();
+        //quando clicar na nota mostra ela
+        lista.setOnItemClickListener((parent, view, position, id) -> {
+            Nota n = notas.get(position);
+            Toast.makeText(getApplicationContext(), n.getTitulo() + "\n" + n.getTexto(), Toast.LENGTH_LONG).show();
         });
+    }
+
+    //busca as notas no banco e atualiza a lista
+    void carregar() {
+        notas.clear();
+        notas.addAll(banco.listar());
+        adapter.notifyDataSetChanged();
     }
 }
