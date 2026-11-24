@@ -1,8 +1,8 @@
 package com.example.appdudu;
 
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,23 +11,23 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
-
-    int contador = 0;
+    //nomes que vao aparecer na lista
+    String nomes [] = new String[]{"Pedro","Lucas","Gabriel","Rafael","Felipe"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        Button b = findViewById(R.id.button);
-        TextView tx = findViewById(R.id.textView);
-        b.setOnClickListener(view -> {
-            contador ++;
-            tx.setText(Integer.toString(contador));
-        });
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        ListView lista = findViewById(R.id.listView);
+
+        ArrayAdapter <String> adapter = new ArrayAdapter<>(getApplicationContext(),R.layout.item_lista,R.id.textView,nomes);
+        lista.setAdapter(adapter);
+
     }
 }
