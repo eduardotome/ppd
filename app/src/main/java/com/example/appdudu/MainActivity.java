@@ -1,5 +1,6 @@
 package com.example.appdudu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
             int numero = r.nextInt(max - min) + min;
             tx.setText(Integer.toString(numero));
+
+            //abrir a outra tela mandando o numero
+            Intent i = new Intent(MainActivity.this, MainActivity2.class);
+            i.putExtra("numero", numero);
+            startActivity(i);
         });
     }
 }
